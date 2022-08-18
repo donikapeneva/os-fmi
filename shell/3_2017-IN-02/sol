@@ -1,0 +1,9 @@
+#!/bin/bash
+
+find . -type f -size 0 2> /dev/null | xargs -I {}  stat -c '%n %s' {};
+
+find ~ -type f 2> /dev/null | xargs -I {} stat -c '%n %s' {} | sort -k2 -n -r | head -n5;
+
+
+
+exit 0;
