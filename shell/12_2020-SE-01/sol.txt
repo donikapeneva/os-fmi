@@ -1,0 +1,8 @@
+default dir - 777
+mask = 0022 
+file perms -> 755
+new file perms -> g+w
+
+
+
+find ~ -maxdepth 1 -type d -printf "%m %p\n" | awk '$1 ~ /755/ && $2 ~/test/ {print $2}' | xargs -I {} chmod g+w {}
