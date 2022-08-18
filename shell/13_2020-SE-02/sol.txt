@@ -1,0 +1,13 @@
+
+
+tail -n+2 spacer.txt
+
+tail -n+2 spacer.txt | awk -F "|" '$3 ~ /Failure/ {print $2,$3}' | sort -k1 | uniq -c
+>> 2 CCAFS Failure
+
+tail -n+2 spacer.txt | awk -F "|" '$3 ~ /Failure/ {print $2,$3}' | sort -k1 | uniq -c | sort -k1 -nr | head -n1 | awk '{print $2}'
+>> CCAFS
+
+tail -n+2 spacer.txt | sort -k1 -t"|" -r | awk -F "|" '$2 ~ /CCAFS/ {print $4 ":" $3 ":" $4 }' | head -n 1
+>> :Failure:Amos-6
+
