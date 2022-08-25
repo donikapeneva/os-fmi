@@ -1,0 +1,23 @@
+validation 
+-> args count = 1
+-> $1 is a file 
+-> validate config file
+
+validate config file 
+
+-> delete from # to end of file
+					     (delete empty lines)
+cat config.txt | sed 's/#.\+//g' | sed '/^$/d'
+
+
+-> validate device name (1st column) (up to 4 symbols)
+-> validate enabled disabled (2nd column)
+
+
+
+update statuses
+for device, action in config file 
+-> if !exists -> message; continue
+-> get current state (enabled/disabled) 
+-> if action == current state - continue 
+-> else write to file (echo device >> file)

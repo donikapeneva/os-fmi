@@ -1,0 +1,35 @@
+#!/bin/bash
+
+test_f () {
+echo "Hiii"
+}
+
+
+if [ "$#" -ne "1" ]; then
+	echo "Wrong args count";
+	exit 1;
+fi
+
+if [ ! -e $1 ]; then
+		echo "File doesnt exist";
+		exit  1;
+fi
+
+#clear comments
+cat $(echo $1) | sed 's/#.\+//g' | sed '/^$/d' > tmp ;
+
+#check file format
+while read device action; do
+#	echo $device $action
+	n=${#device}
+	
+	if [ \( "$n" -gt 4 \) -o \( $action != "enabled" -a $action != "disabled" \) ]; then
+	#if [ $n -gt 4 ] || [ $action != "enabled" ] || [ $action != "disabled" ]  ; then
+			echo "ignoring ${device} ${action} : invalid format"
+		continue;
+	fi
+	
+done< <(cat tmp)
+
+
+exit 0;
