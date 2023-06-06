@@ -14,9 +14,11 @@ fi
 # -- ---
 filename=$1
 
-nl -w1 -s". " $filename | cut -d" " -f2,3,4 --complement | sort -k2  
+#nl -w1 -s". " $filename | cut -d" " -f2,3,4 --complement | sort -k2  
 
 #cat <(nl -w1 -s". " $filename | cut -d" " -f2,3,4 --complement | sort -k2)
+
+#awk '{print NR". "$0}' $filename
 
 exit 0
 
