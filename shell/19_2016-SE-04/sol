@@ -1,0 +1,36 @@
+#!/bin/bash
+
+if [[ $# != 2 ]]; then
+	echo "usage: FILE_1 FILE_2"
+	exit 1
+fi
+
+file1=$1
+file2=$2
+
+
+
+if [[ ! -f ~/$file1 || ! -f ~/$file2 ]]; then
+	echo "files not compatible or dont exist"
+	exit 1
+fi
+
+file1_cnt=$(grep -c $file1 ~/$file1)
+file2_cnt=$(grep -c $file2 ~/$file2)
+
+winner=
+
+if (( $file1_cnt > $file2_cnt )); then
+	winner=$file1
+elif (( $file1_cnt < $file2_cnt )); then
+	winner=$file2
+else 
+	echo "Files are with equals cnt. Wont proceed" 
+	exit 1
+fi
+
+echo $winner
+
+cat ~/$winner | cut -d " " -f1,2,3 --complement | sort -k1 > ${winner}.songs
+
+
