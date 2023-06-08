@@ -1,0 +1,64 @@
+#!/bin/bash
+
+if [[ $# < 1 ]]; then 
+	echo "usage: makesol <task> [-d <shell|c-tasks>] "
+	exit 1
+fi
+
+DEFAULT_ROOT=~
+DEFAULT_DIR=playground
+FIRST_C_TAKS=56
+
+task_pattern_match=1
+if [[ ! $1 =~ [0-9]+_[0-9]{4}-[A-ZА-Я]{2}-[0-9]{2} ]]; then
+	echo ">>> task doesn't match the pattern of the os-problems.pdf"
+	task_pattern_match=0
+    
+	#{ ! test -d ${DEFAULT_DEST}/$DEFAULT_DIR && mkdir ${DEFAULT_DEST}/$DEFAULT_DIR &&  echo ">>> Creating directory ${DEFAULT_DEST}/$DEFAULT_DIR" 
+	#}
+
+
+fi
+
+task=$1
+directory=
+dest=
+root=
+
+if [[ ! -z $2 && ! -z $3 && $2 == "-d" ]]; then
+	directory=$3
+fi
+
+
+if [[ $task_pattern_match -eq 1 ]]; then 
+	task_number=$( echo $task | cut -d"_" -f1 )
+
+	#set default dir task_name/shell|c-tasks if empty
+	if [[ -z $directory ]]; then 
+		{ test $task_number -lt $FIRST_C_TAKS && root="$DEFAULT_ROOT}/shell"; } || { root="$DEFAULT_ROOT}/c-tasks"; } 
+
+		#if [[ $task_number -lt 56  ]]; then 
+		#	DEFAULT_DIR="shell"
+		#else
+		#	DEFAULT_DIR="c-tasks"
+		#fi
+
+	fi
+else 
+	if [[ ! -z $directory ]]; then
+		directory=${directory}/${DEFAULT_DIR}
+	fi
+fi
+
+root=${root:=$DEFAULT_ROOT}/${directory:=$DEFAULT_DIR}
+
+if [[ ! -d $root ]]; then 
+	echo ">>> ${root} doesn't exist. Creating..."
+	mkdir $root
+fi
+
+echo ">>> Creating new sol file into $root"
+
+{ cd $root && mkdir $task; cd ./$task && touch sol; chmod u+x ./sol.sh; }
+
+
