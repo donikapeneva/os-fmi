@@ -35,8 +35,9 @@ if [[ $task_pattern_match -eq 1 ]]; then
 
 	#set default dir task_name/shell|c-tasks if empty
 	if [[ -z $directory ]]; then 
-		{ test $task_number -lt $FIRST_C_TAKS && root="$DEFAULT_ROOT}/shell"; } || { root="$DEFAULT_ROOT}/c-tasks"; } 
+		{ test $task_number -lt $FIRST_C_TAKS && directory="shell"; } || { directory="c-tasks"; } 
 
+		
 		#if [[ $task_number -lt 56  ]]; then 
 		#	DEFAULT_DIR="shell"
 		#else
@@ -57,8 +58,8 @@ if [[ ! -d $root ]]; then
 	mkdir $root
 fi
 
-echo ">>> Creating new sol file into $root"
+echo ">>> Creating new $task folder into $root"
 
-{ cd $root && mkdir $task; cd ./$task && touch sol; chmod u+x ./sol.sh; }
+{ cd $root && mkdir $task; cd ./$task && touch sol; chmod u+x ./sol; }
 
 
