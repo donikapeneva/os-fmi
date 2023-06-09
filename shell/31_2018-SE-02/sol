@@ -1,0 +1,43 @@
+#/bin/bash
+
+# -- validation --
+if [[ $# != 2 ]] ; then
+	echo "usage: <filename> <dir>"
+	exit 1
+fi
+
+filename=$1
+dir=$2
+
+if [[ ! -d $dir ]]; then
+	echo "$dir does not exist"
+	exit 1
+fi
+
+if [[ ! -f $filename ]]; then
+	echo "$filename does not exist" 
+	exit 1
+fi
+
+dir_empty=$(find $dir -maxdepth 1 -mindepth 1 | wc -l)
+if [[ $dir_empty > 0 ]]; then
+	echo "$dir is not empty" 
+	exit 1
+fi
+
+#pattern_check=$(
+#cat $filename | grep -x '[A-Za-z\-]\s[A-Za-z\-]\s*[A-Za-z\)\(]*.*'
+#)
+
+cat $filename | cut -d" " -f1,2 | cut -d":" -f1 | sort | uniq | awk '{print $0";" NR}' > ${dir}/dict.txt
+
+while read line; do
+	
+	name=$(echo $line | cut -d";" -f1)
+	number=$(echo $line | cut -d";" -f2)
+
+	grep "$name" "$filename" | cut -d":" -f2 | sed "s/^\s//" > ${dir}/${number}.txt
+
+
+
+done < dict.txt
