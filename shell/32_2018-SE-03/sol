@@ -1,0 +1,53 @@
+#!/bin/bash
+
+
+
+if [[ $# -ne 2 ]]; then
+	echo "usage: <file_to_read> <file_to_write>"
+	exit 1
+fi
+
+if [[ ! -f $1 ]]; then 
+	echo "$file does not exist"
+	exit 1
+fi
+
+file=$1
+dest=$2
+
+#cat $file | cut -d"," -f1 --complement | sort | uniq > temp
+#echo ">>> temp"
+#cat temp
+
+if [[ ! -f $dest ]]; then
+	echo ">>> Creating file $dest"
+	touch $dest
+
+else 
+	echo -n"" > $dest
+fi
+
+
+while read line; do
+	echo ">>> searching: $line"
+	res_count=$(grep -E "^[0-9]+,${line}$" $file -c)
+
+	res=$(grep -E "^[0-9]+,${line}$" $file)
+	echo ">>> found: $res"
+
+	#not working beacuse of echo
+	#res_count=$(wc -l <(echo $res) | cut -d" " -f1)
+    echo ">> res count: $res_count"
+	if [[ res_count -gt 1 ]]; then
+		echo ">>> multiple match"
+		res=$( sort -t"," -k1 -n <(grep -E "^[0-9]+,${line}$" $file) | head -n1)
+	fi
+
+	echo ">> writing in file"
+	echo ">>> $res"
+
+	echo $res >> $dest
+
+
+done < temp
+
