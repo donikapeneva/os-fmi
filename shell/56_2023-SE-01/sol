@@ -1,0 +1,22 @@
+#!/bin/bash
+
+
+bad_words=$1
+dir=$2
+
+
+# -- validation --
+
+# -- action -----
+while read file; do 
+	while read bad_word; do
+		echo "search for $bad_word"
+		bad_word_cens=$(echo $bad_word | sed 's/./*/Ig')
+	
+		sed -E -i "s/\b($bad_word)\b/$bad_word_cens/Ig" $file
+	
+	done < $bad_words
+
+
+
+done < <(find $dir -type f)
