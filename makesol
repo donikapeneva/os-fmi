@@ -7,9 +7,14 @@ fi
 
 DEFAULT_ROOT=~
 DEFAULT_DIR=playground
-FIRST_C_TAKS=56
+FIRST_C_TAKS=58
 
 task_pattern_match=1
+
+#if [ echo $1 | grep -E '[0-9]+_[0-9]{4}-[A-ZА-Я]{2}-[0-9]{2}' ]; then
+#	echo "true"
+#fi
+
 if [[ ! $1 =~ [0-9]+_[0-9]{4}-[A-ZА-Я]{2}-[0-9]{2} ]]; then
 	echo ">>> task doesn't match the pattern of the os-problems.pdf"
 	task_pattern_match=0
@@ -24,6 +29,7 @@ task=$1
 directory=
 dest=
 root=
+taskType=
 
 if [[ ! -z $2 && ! -z $3 && $2 == "-d" ]]; then
 	directory=$3
@@ -35,7 +41,7 @@ if [[ $task_pattern_match -eq 1 ]]; then
 
 	#set default dir task_name/shell|c-tasks if empty
 	if [[ -z $directory ]]; then 
-		{ test $task_number -lt $FIRST_C_TAKS && directory="shell"; } || { directory="c-tasks"; } 
+		{ test $task_number -lt $FIRST_C_TAKS && directory="shell"; } || { directory="c-tasks" && taskType="c"; } 
 
 		
 		#if [[ $task_number -lt 56  ]]; then 
@@ -47,6 +53,10 @@ if [[ $task_pattern_match -eq 1 ]]; then
 	fi
 else 
 	if [[ ! -z $directory ]]; then
+		if [[ $directory -eq "c" || $directory -eq "c-tasks" ]]; then
+			taskType="c"
+			directory="c-tasks"
+		fi
 		directory=${directory}/${DEFAULT_DIR}
 	fi
 fi
@@ -60,6 +70,12 @@ fi
 
 echo ">>> Creating new $task folder into $root"
 
-{ cd $root && mkdir $task; cd ./$task && touch sol; chmod u+x ./sol; }
+if [[ $taskType == "c" ]]; then
+	{ cd $root && mkdir $task; cd ./$task && touch main.c; cp ~/Makefile ./; }
+else
+	{ cd $root && mkdir $task; cd ./$task && touch sol; chmod u+x ./sol; }
+
+fi
+
 
 
