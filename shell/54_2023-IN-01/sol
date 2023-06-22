@@ -1,0 +1,66 @@
+#!/bin/bash
+
+#ssacli ctrl slot=x pd all show detail
+
+if [ $1 == "autoconf" ]; then
+	echo yes
+	exit 0
+fi
+
+while read line; do 
+	if [[ $line =~ "Array".* ]];then
+		arr=$(echo $line | sed 's/^ *//' | cut -f2)
+	fi
+
+	if [[ $line == "physicaldrive"* ]];then
+		disk_name=$(echo $lne | sed 's/^ *//' | cut -f2)
+	fi
+
+	# ...
+	# write to tempfile 
+	# slot | model |  name  | array | temp
+	#  0   | P420i | 1I:2:1 |   A   |  35
+
+done < <(ssacli ctrl slot=x pd all show detail)
+
+
+#args 
+# -config
+
+#print header -> graph_ ...
+while read slot model disk_name array temp; do
+	disk_name_tr=$(echo $disk_name | tr ":" "" )
+	disk_id=$(echo "SSA${slot}${model}${disk_name_tr}")
+	label=$(echo "SSA${slot} ${model} ${array} ${disk_name}")
+
+	echo "${disk_id}.label ${label}"
+	echo "${disk_id}.type GAUGE"
+
+done < tempfile
+
+#args ==null
+while read slot model disk_name array temp; do
+
+	disk_id=$(echo "SSA${slot}${model}${disk_name_tr}")
+	echo "${disk_id}.value ${temp}"
+done < tempfile
+
+Array A
+	physicaldrive 1I:2:1
+		Rotational Speed: 15000
+		Current Temperature (C): 35
+	physicaldrive 1I:2:2
+		Interface Type: SAS
+		Current Temperature (C): 36
+		SMR Support: None
+	physicaldrive 1I:2:3
+		Status: OK
+		Drive Type: Spare Drive
+		Current Temperature (C): 34
+		Maximum Temperature (C): 42
+
+Array J
+	physicaldrive 2E:1:19
+		Current Temperature (C): 29
+	physicaldrive 2E:1:20
+		Current Temperature (C): 28

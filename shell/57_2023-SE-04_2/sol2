@@ -1,0 +1,55 @@
+#!/bin/bash
+
+dir=$1
+
+find $dir -type f -exec md5sum {}  \; > hashed
+cat hashed | tr -s " " > hashed_sq
+
+workfile="workfile"
+touch $workfile
+
+while read hash file; do
+	hardlinks=$(stat $file -c"%h")
+	echo $hardlinks
+	echo "$hash $file $hardlinks" >> $workfile
+	
+
+done < hashed_sq
+
+while read  file; do
+	ref_hash=$(md5sum $file | cut -d" " -f1)
+	current_node=$(stat $file -c "%i")
+	echo ">>> start investigate $file, hash: $ref_hash"
+	
+	grep "$ref_hash" $workfile 
+
+	ref_name=$(grep "$ref_hash" $workfile | sort -k3 -rn | head -n1 | cut -d" " -f2)
+	echo ">>> ref name = $ref_name"
+	ref_inode=$(stat $ref_name -c "%i")	
+
+	while read dup_hash dup_name;do
+		echo ">> dup hash: $dup_hash"
+		echo ">> dup name: $dup_name"
+		dup_inode=$(stat $dup_name -c"%i")
+		echo ">>> dup inode: $dup_inode"
+
+		if [[ $dup_inode -eq $ref_inode ]]; then
+			echo ">>> ${dup_name} hard link"
+		else
+		
+			echo ">>> dup found $dup_name"
+			dup_size=$(stat $dup_name -c "%s")
+			
+		 	mv $dup_name arch/$sup_name
+		 	ln $file $dup_name
+			size=$(( size + dup_size ))
+		fi
+
+	done < <(grep "$ref_hash" hashed_sq)
+
+		
+
+done < <(find $dir -type f)
+
+
+echo ">>>>> size $size"

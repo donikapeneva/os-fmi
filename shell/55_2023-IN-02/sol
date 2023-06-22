@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# --- validation ---
+# TODO 
+
+dir=$1
+
+# --- hashing files
+touch hashmap
+
+find $dir -type f -exec md5sum {} \; > hashmap
+
+#TODO can be normalized easier :) 
+#while read file; do
+#	md5sum $file | xargs >> hashmap_2
+#done < <(find $dir -type f)
+
+# --- normalize and add hardlinks
+
+touch hashmap_norm
+while read line; do 
+	normalized=$(echo $line | xargs)
+	file=$(echo $normalized | cut -d" " -f2)
+	meta=$(stat $file -c "%h %i")
+	echo "${normalized} ${meta}" >> hashmap_norm
+done < hashmap
+
+#go through files and check them = validate file
+while read file; do
+	current_hash=$(md5sum $file | cut -d" " -f1)
+	current_inode=$(stat $file -c "%i")
+
+	#check if dups
+	(grep -E "${current_hash}" hashmap_norm | awk '$3=1 {print $0}' > temp_dupfiles
+
+	grep -E "${current_hash} .* \d+ $current_inode" | awk '$3>1 {print $0}' > temp_hardlinks
+
+	count_f=$(cat temp_dupfiles | wc -l)
+	count_h=$(cat temp_hardlinks | wc -l)
+
+
+	if [[ $count_h -gt 1 ]];then
+		ref=$(cat temp_hardlinks | head -n1 | cut -d" " -f2)
+		echo "${ref} can be deleted"
+
+		if [[ $count_f -gt 0 ]]; then
+			echo "files can be deleted"
+			cat temp_dupfiles | cut -d" " -f2
+		fi
+	else
+		if [[ $count_f -gt 1 ]]; then
+			ref=$(cat temp_dupfiles | head -n1 ) 
+			ref_inode=$(echo $ref | cut -d" " -f4)
+
+			while read hash file hardlinks inode; do
+				if [[ $inode -ne $ref_node ]]; then
+					echo $file
+				fi
+			done < temp_dupfiles
+		fi
+	fi
+done < <(find $dir -type f) 
+
+
